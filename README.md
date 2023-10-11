@@ -2,7 +2,7 @@
 OOPS project
 
 
-Tetris Game in C++ using OOP
+Tetris Game in python using OOP
 
 This is a simple Tetris game written in C++ using object-oriented programming (OOP). The game is implemented using the following classes:
 
@@ -19,8 +19,6 @@ How to build and run the game
 
 To build and run the game, you will need to have a C++ compiler installed. Once you have a compiler installed, you can build the game by running the following command:
 
-g++ main.cpp -o tetris
-This will create an executable file called tetris. To run the game, simply type the following command:
 
 ./tetris
 Tips for playing the game
