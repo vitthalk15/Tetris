@@ -3,14 +3,15 @@ import random
 import time
 
 from art import text2art
+from art import *
 from colorama import Fore, Style, init
 
 init(autoreset=True)
-ascii_art = text2art("Tetris", font='block', chr_ignore=True)
-colors = [Fore.RED, Fore.GREEN, Fore.BLUE, Fore.YELLOW, Fore.MAGENTA, Fore.CYAN]
+ascii_art = text2art("Tetris", font='block', chr_ignore=True)                     #for printing tetris at start
+colors = [Fore.RED, Fore.GREEN, Fore.BLUE, Fore.YELLOW, Fore.MAGENTA, Fore.CYAN]  #defining colours
 
 
-ascii_characters = list(ascii_art)
+ascii_characters = list(ascii_art)           
 colored_art = ""
 for i, char in enumerate(ascii_characters):
     if char == '\n':
@@ -20,12 +21,19 @@ for i, char in enumerate(ascii_characters):
 
 print(colored_art)
 print(Style.RESET_ALL)
+print("Game Rules: \n")
+print("1. Press -> and <- keys to move right and left respectively \n")
+print("2. Press ^ to rotate \n")
+print("3. Press down to move faster \n")
+print("4. Press space to rest tetromino on game board \n")
+print("5. Press esc for new game \n")
 
-delay_seconds = 10
+delay_seconds = 10                                                                 # for delaying before start
 for remaining_time in range(delay_seconds, 0, -1):
     print(f"Game starts in {remaining_time} second", end='\r')
     time.sleep(1)
 
+ # defining colours
 colors = [
     (0, 0, 0),
     (120, 37, 179),
@@ -36,7 +44,7 @@ colors = [
     (180, 34, 122),
 ]
 
-
+# defining shapes
 class Figure:
     x = 0
     y = 0
@@ -51,6 +59,7 @@ class Figure:
         [[1, 2, 5, 6]],
     ]
 
+# defining coordinates and movement of tetromino
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -64,7 +73,7 @@ class Figure:
     def rotate(self):
         self.rotation = (self.rotation + 1) % len(self.figures[self.type])
 
-
+#defining parameters
 class Tetris:
     def __init__(self, height, width):
         self.level = 2
@@ -89,7 +98,8 @@ class Tetris:
                 new_line.append(0)
             self.field.append(new_line)
 
-    def new_figure(self):
+
+    def new_figure (self):
         self.figure = Figure(3, 0)
 
     def intersects(self):
@@ -169,7 +179,7 @@ pygame.display.set_caption("Tetris")
 # Loop until the user clicks the close button.
 done = False
 clock = pygame.time.Clock()
-fps = 25
+fps = 375
 game = Tetris(20, 10)
 counter = 0
 
@@ -241,4 +251,4 @@ while not done:
     clock.tick(fps)
 
 pygame.quit()
-tprint("Thank  You")
+tprint("Thank You","caligraphy")
