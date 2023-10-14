@@ -1,6 +1,7 @@
 import pygame
 import random
 import time
+import threading
 
 from art import text2art
 from art import *
@@ -9,11 +10,11 @@ from colorama import Fore, Style, init
 import Tetris_Figures
 from Tetris_Class import Tetris
 
+
+#Prrinting Tetris at the start
 init(autoreset=True)
-ascii_art = text2art("Tetris", font='block', chr_ignore=True)                     #for printing tetris at start
+ascii_art = text2art("Tetris", font='block', chr_ignore=True)                     
 colors = [Fore.RED, Fore.GREEN, Fore.BLUE, Fore.YELLOW, Fore.MAGENTA, Fore.CYAN]  #defining colours
-
-
 ascii_characters = list(ascii_art)    
 colored_art = ""
 for i, char in enumerate(ascii_characters):
@@ -21,21 +22,41 @@ for i, char in enumerate(ascii_characters):
         colored_art += char  
     else:
         colored_art += colors[i % len(colors)] + char
-
 print(colored_art)
 print(Style.RESET_ALL)
 
-print("Game Rules: \n")
-print("1. Press -> and <- keys to move right and left respectively \n")
-print("2. Press ^ to rotate \n")
-print("3. Press down to move faster \n")
-print("4. Press space to rest tetromino on game board \n")
-print("5. Press esc for new game \n")
 
-delay_seconds = 10                                                                 # for delaying before start
-for remaining_time in range(delay_seconds, 0, -1):
-    print(f"Game starts in {remaining_time} second", end='\r')
-    time.sleep(1)
+#Displaying the time remaining for the game to start
+def countdown():
+    delay_seconds = 10      # Number of seconds before starting
+    for remaining_time in range(delay_seconds, 0, -1):
+        if countdown_flag.is_set():
+            break
+        print(f"Game starts in {remaining_time} seconds", end='\r')
+        time.sleep(1)
+    print(" " * 40, end='\r')  # Clear the countdown display
+
+# Create a thread for the countdown
+countdown_thread = threading.Thread(target=countdown)
+countdown_flag = threading.Event()
+
+#Displaying game rules
+print(Fore.GREEN + "Game Rules: \n")
+print(Fore.CYAN + "1. Press " + Fore.RED + " → " + Fore.CYAN + "and" + Fore.RED + " ← " + Fore.CYAN + "keys to move right and left respectively \n")
+print(Fore.CYAN + "2. Press " + Fore.RED + "↑" + Fore.CYAN + " to rotate \n")
+print(Fore.CYAN + "3. Press " + Fore.RED + "↓" + Fore.CYAN + " to move faster \n")
+print(Fore.CYAN + "4. Press " + Fore.RED + "space bar" + Fore.CYAN + " to rest tetromino on the game board \n")
+
+countdown_thread.start()
+# Wait for the user to press Enter to start the game
+input(Fore.MAGENTA+"Press Enter to start the game\n")
+
+# Set the flag to stop the countdown
+countdown_flag.set()
+countdown_thread.join()
+
+print("Game starts now!")
+
 
 #Defining colours for the program
 colors = [
