@@ -1,6 +1,7 @@
 import pygame
 import random
 import time
+import math
 
 from art import text2art
 from art import *
@@ -11,11 +12,11 @@ ascii_art = text2art("Tetris", font='block', chr_ignore=True)                   
 colors = [Fore.RED, Fore.GREEN, Fore.BLUE, Fore.YELLOW, Fore.MAGENTA, Fore.CYAN]  #defining colours
 
 
-ascii_characters = list(ascii_art)           
+ascii_characters = list(ascii_art)
 colored_art = ""
 for i, char in enumerate(ascii_characters):
     if char == '\n':
-        colored_art += char  
+        colored_art += char
     else:
         colored_art += colors[i % len(colors)] + char
 
@@ -26,14 +27,14 @@ print("1. Press -> and <- keys to move right and left respectively \n")
 print("2. Press ^ to rotate \n")
 print("3. Press down to move faster \n")
 print("4. Press space to rest tetromino on game board \n")
-print("5. Press esc for new game \n")
-
-delay_seconds = 10                                                                 # for delaying before start
+print("5. Press p / Click on button to pause \n")
+print("6. Press esc for new game \n")
+delay_seconds = 5                                                                 # for delaying before start
 for remaining_time in range(delay_seconds, 0, -1):
     print(f"Game starts in {remaining_time} second", end='\r')
     time.sleep(1)
 
- # defining colours
+# defining colours
 colors = [
     (0, 0, 0),
     (120, 37, 179),
@@ -86,7 +87,7 @@ class Tetris:
         self.y = 60
         self.zoom = 20
         self.figure = None
-    
+
         self.height = height
         self.width = width
         self.field = []
@@ -149,7 +150,8 @@ class Tetris:
         self.new_figure()
         if self.intersects():
             self.state = "gameover"
-
+    
+        
     def go_side(self, dx):
         old_x = self.figure.x
         self.figure.x += dx
@@ -162,6 +164,17 @@ class Tetris:
         if self.intersects():
             self.figure.rotation = old_rotation
 
+    def pause(self):
+        if(self.state == "start"):
+            self.state = "pause"
+        else:
+            self.state = "start"
+
+    def faster(self):
+        self.figure.y += 3
+        if self.intersects():
+            self.figure.y -= 1
+            self.freeze()       
 
 # Initialize the game engine
 pygame.init()
@@ -179,7 +192,7 @@ pygame.display.set_caption("Tetris")
 # Loop until the user clicks the close button.
 done = False
 clock = pygame.time.Clock()
-fps = 375
+fps = 1200
 game = Tetris(20, 10)
 counter = 0
 
@@ -203,7 +216,7 @@ while not done:
             if event.key == pygame.K_UP:
                 game.rotate()
             if event.key == pygame.K_DOWN:
-                pressing_down = True
+                game.faster()
             if event.key == pygame.K_LEFT:
                 game.go_side(-1)
             if event.key == pygame.K_RIGHT:
@@ -212,29 +225,38 @@ while not done:
                 game.go_space()
             if event.key == pygame.K_ESCAPE:
                 game.__init__(20, 10)
+            if event.key == pygame.K_p:
+                game.pause()
+                
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mousex, mousey = pygame.mouse.get_pos()
+            dist = math.sqrt((mousex-380)**2 + (mousey-20)**2)
+            if(dist<=20):
+                game.pause()
 
-    if event.type == pygame.KEYUP:
-            if event.key == pygame.K_DOWN:
-                pressing_down = False
+    # if event.type == pygame.KEYUP:
+    #         if event.key == pygame.K_DOWN:
+    #             pressing_down = False
 
     screen.fill(WHITE)
 
-    for i in range(game.height):
-        for j in range(game.width):
-            pygame.draw.rect(screen, GRAY, [game.x + game.zoom * j, game.y + game.zoom * i, game.zoom, game.zoom], 1)
-            if game.field[i][j] > 0:
-                pygame.draw.rect(screen, colors[game.field[i][j]],
-                                 [game.x + game.zoom * j + 1, game.y + game.zoom * i + 1, game.zoom - 2, game.zoom - 1])
+    if game.state == "start":
+        for i in range(game.height):
+            for j in range(game.width):
+                pygame.draw.rect(screen, GRAY, [game.x + game.zoom * j, game.y + game.zoom * i, game.zoom, game.zoom], 1)
+                if game.field[i][j] > 0:
+                    pygame.draw.rect(screen, colors[game.field[i][j]],
+                                    [game.x + game.zoom * j + 1, game.y + game.zoom * i + 1, game.zoom - 2, game.zoom - 1])
 
-    if game.figure is not None:
-        for i in range(4):
-            for j in range(4):
-                p = i * 4 + j
-                if p in game.figure.image():
-                    pygame.draw.rect(screen, colors[game.figure.color],
-                                     [game.x + game.zoom * (j + game.figure.x) + 1,
-                                      game.y + game.zoom * (i + game.figure.y) + 1,
-                                      game.zoom - 2, game.zoom - 2])
+        if game.figure is not None:
+            for i in range(4):
+                for j in range(4):
+                    p = i * 4 + j
+                    if p in game.figure.image():
+                        pygame.draw.rect(screen, colors[game.figure.color],
+                                        [game.x + game.zoom * (j + game.figure.x) + 1,
+                                        game.y + game.zoom * (i + game.figure.y) + 1,
+                                        game.zoom - 2, game.zoom - 2])
 
     font = pygame.font.SysFont('Calibri', 25, True, False)
     font1 = pygame.font.SysFont('Calibri', 65, True, False)
@@ -242,11 +264,22 @@ while not done:
     text_game_over = font1.render("Game Over", True, (255, 125, 0))
     text_game_over1 = font1.render("Press ESC", True, (255, 215, 0))
 
+    text_game_pause = font1.render("Game Paused", True, (255, 125, 0))
+    #text_game_over1 = font1.render("Press ESC", True, (255, 215, 0))
+
+    text
     screen.blit(text, [0, 0])
     if game.state == "gameover":
         screen.blit(text_game_over, [20, 200])
         screen.blit(text_game_over1, [25, 265])
 
+    if game.state == "pause":
+        screen.blit(text_game_pause, [15, 200])
+    # Pause Button
+    if game.state != "gameover":
+        pygame.draw.circle(screen, (0,0,0),(380,20), 20,3)
+        pause_text = font.render('||',True,(0,0,0))
+        screen.blit(pause_text, (370,10))
     pygame.display.flip()
     clock.tick(fps)
 
